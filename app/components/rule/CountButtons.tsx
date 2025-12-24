@@ -29,7 +29,7 @@ export function CountButtons({
           {followCount}
         </span>
       </button>
-      
+
       <button
         onClick={onViolate}
         className="flex-1 group flex items-center justify-between px-4 py-3 rounded-xl bg-rose-50 text-rose-700 border border-rose-100 hover:bg-rose-100 hover:border-rose-200 transition-all duration-200"

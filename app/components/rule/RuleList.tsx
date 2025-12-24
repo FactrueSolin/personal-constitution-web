@@ -34,7 +34,7 @@ export function RuleList({
           <span className="font-medium">新增规则</span>
         </button>
       </div>
-      
+
       <div className="grid gap-4">
         {rules.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">

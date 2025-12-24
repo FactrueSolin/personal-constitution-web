@@ -19,26 +19,24 @@ export function CategoryItem({
 }: CategoryItemProps) {
   return (
     <div
-      className={`group flex items-center justify-between rounded-xl p-3 cursor-pointer transition-all duration-200 border ${
-        isSelected
+      className={`group flex items-center justify-between rounded-xl p-3 cursor-pointer transition-all duration-200 border ${isSelected
           ? "bg-blue-600 text-white shadow-md border-blue-500"
           : "hover:bg-white hover:shadow-sm text-slate-700 border-transparent hover:border-slate-200"
-      }`}
+        }`}
       onClick={onSelect}
     >
       <div className="flex items-center gap-3 overflow-hidden">
         <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected ? 'bg-white' : 'bg-slate-400 group-hover:bg-blue-500'}`} />
         <span className="font-medium truncate">{category.name}</span>
       </div>
-      
+
       <div className={`flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isSelected ? 'opacity-100' : ''}`} onClick={(e) => e.stopPropagation()}>
         <button
           onClick={onEdit}
-          className={`p-1.5 rounded-lg transition-colors ${
-            isSelected 
-              ? "text-blue-100 hover:bg-blue-500 hover:text-white" 
+          className={`p-1.5 rounded-lg transition-colors ${isSelected
+              ? "text-blue-100 hover:bg-blue-500 hover:text-white"
               : "text-slate-400 hover:bg-slate-100 hover:text-blue-600"
-          }`}
+            }`}
           title="编辑"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,11 +45,10 @@ export function CategoryItem({
         </button>
         <button
           onClick={onDelete}
-          className={`p-1.5 rounded-lg transition-colors ${
-            isSelected 
-              ? "text-blue-100 hover:bg-blue-500 hover:text-white" 
+          className={`p-1.5 rounded-lg transition-colors ${isSelected
+              ? "text-blue-100 hover:bg-blue-500 hover:text-white"
               : "text-slate-400 hover:bg-slate-100 hover:text-rose-600"
-          }`}
+            }`}
           title="删除"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

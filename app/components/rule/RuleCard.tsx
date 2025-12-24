@@ -40,11 +40,11 @@ export function RuleCard({
           </svg>
         </button>
       </div>
-      
+
       <div className="mb-6 pr-16">
         <p className="text-lg text-slate-800 font-medium leading-relaxed">{rule.content}</p>
       </div>
-      
+
       <CountButtons
         followCount={rule.follow_count}
         violateCount={rule.violate_count}

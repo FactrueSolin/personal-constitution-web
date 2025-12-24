@@ -164,7 +164,7 @@ export default function Home() {
           </h1>
           <p className="text-xs text-slate-400 mt-1 font-medium">用规则塑造稳定习惯</p>
         </div>
-        
+
         <div className="flex-1 overflow-hidden p-4">
           <CategoryList
             categories={categories}
@@ -175,7 +175,7 @@ export default function Home() {
             onAdd={handleAddCategory}
           />
         </div>
-        
+
         <div className="p-4 border-t border-slate-100 text-center">
           <p className="text-xs text-slate-300">© 2025 Personal Constitution</p>
         </div>
@@ -192,7 +192,7 @@ export default function Home() {
                 </h2>
                 <div className="h-1 w-20 bg-blue-500 rounded-full mt-4"></div>
               </header>
-              
+
               <RuleList
                 rules={rules}
                 onEdit={handleEditRule}
@@ -211,7 +211,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold text-slate-800 mb-3">开始你的自律之旅</h3>
               <p className="text-slate-500 mb-8 leading-relaxed">
-                创建分类来组织你的行为准则，<br/>让每一个好习惯都有迹可循。
+                创建分类来组织你的行为准则，<br />让每一个好习惯都有迹可循。
               </p>
               <button
                 onClick={handleAddCategory}

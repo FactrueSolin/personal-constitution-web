@@ -34,7 +34,7 @@ export function CategoryList({
           </svg>
         </button>
       </div>
-      
+
       <div className="space-y-1 overflow-y-auto flex-1 pr-2 -mr-2">
         {categories.length === 0 ? (
           <div className="text-center py-8 px-4 border-2 border-dashed border-slate-200 rounded-xl">
