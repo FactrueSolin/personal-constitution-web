@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package constitution;
+
+message CountRecord {
+  string id = 1;
+  string rule_id = 2;
+  string type = 3;  // 'follow' 或 'violate'
+  string timestamp = 4;
+  string note = 5;
+}
+
+message CountRecordList {
+  repeated CountRecord records = 1;
+}

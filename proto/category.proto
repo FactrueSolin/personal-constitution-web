@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package constitution;
+
+message Category {
+  string id = 1;
+  string name = 2;
+  string created_at = 3;
+  string updated_at = 4;
+}
+
+message CategoryList {
+  repeated Category categories = 1;
+}
+
+message CreateCategoryRequest {
+  string name = 1;
+}

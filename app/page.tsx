@@ -1,65 +1,242 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Category, Rule } from '@/app/types';
+import { apiClient } from '@/app/lib/api-client';
+import { CategoryList } from '@/app/components/category/CategoryList';
+import { CategoryModal } from '@/app/components/category/CategoryModal';
+import { RuleList } from '@/app/components/rule/RuleList';
+import { RuleModal } from '@/app/components/rule/RuleModal';
 
 export default function Home() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null
+  );
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [ruleModalOpen, setRuleModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingRule, setEditingRule] = useState<Rule | null>(null);
+
+  // Load categories
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  // Load rules when category changes
+  useEffect(() => {
+    if (selectedCategoryId) {
+      loadRules(selectedCategoryId);
+    } else {
+      setRules([]);
+    }
+  }, [selectedCategoryId]);
+
+  const loadCategories = async () => {
+    try {
+      const data = await apiClient.getCategories();
+      setCategories(data);
+      if (data.length > 0 && !selectedCategoryId) {
+        setSelectedCategoryId(data[0].id);
+      }
+    } catch (error) {
+      console.error('Failed to load categories:', error);
+    }
+  };
+
+  const loadRules = async (categoryId: string) => {
+    try {
+      const data = await apiClient.getRules(categoryId);
+      setRules(data);
+    } catch (error) {
+      console.error('Failed to load rules:', error);
+    }
+  };
+
+  // Category handlers
+  const handleAddCategory = () => {
+    setEditingCategory(null);
+    setCategoryModalOpen(true);
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory(category);
+    setCategoryModalOpen(true);
+  };
+
+  const handleSaveCategory = async (name: string) => {
+    try {
+      if (editingCategory) {
+        await apiClient.updateCategory(editingCategory.id, name);
+      } else {
+        await apiClient.createCategory(name);
+      }
+      setCategoryModalOpen(false);
+      loadCategories();
+    } catch (error) {
+      console.error('Failed to save category:', error);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (confirm('确定删除此分类吗？')) {
+      try {
+        await apiClient.deleteCategory(id);
+        if (selectedCategoryId === id) {
+          setSelectedCategoryId(null);
+        }
+        loadCategories();
+      } catch (error) {
+        console.error('Failed to delete category:', error);
+      }
+    }
+  };
+
+  // Rule handlers
+  const handleAddRule = () => {
+    setEditingRule(null);
+    setRuleModalOpen(true);
+  };
+
+  const handleEditRule = (rule: Rule) => {
+    setEditingRule(rule);
+    setRuleModalOpen(true);
+  };
+
+  const handleSaveRule = async (content: string) => {
+    if (!selectedCategoryId) return;
+    try {
+      if (editingRule) {
+        await apiClient.updateRule(editingRule.id, content);
+      } else {
+        await apiClient.createRule(selectedCategoryId, content);
+      }
+      setRuleModalOpen(false);
+      loadRules(selectedCategoryId);
+    } catch (error) {
+      console.error('Failed to save rule:', error);
+    }
+  };
+
+  const handleDeleteRule = async (id: string) => {
+    if (confirm('确定删除此规则吗？')) {
+      try {
+        await apiClient.deleteRule(id);
+        if (selectedCategoryId) {
+          loadRules(selectedCategoryId);
+        }
+      } catch (error) {
+        console.error('Failed to delete rule:', error);
+      }
+    }
+  };
+
+  const handleFollowRule = async (id: string) => {
+    try {
+      await apiClient.followRule(id);
+      if (selectedCategoryId) {
+        loadRules(selectedCategoryId);
+      }
+    } catch (error) {
+      console.error('Failed to follow rule:', error);
+    }
+  };
+
+  const handleViolateRule = async (id: string) => {
+    try {
+      await apiClient.violateRule(id);
+      if (selectedCategoryId) {
+        loadRules(selectedCategoryId);
+      }
+    } catch (error) {
+      console.error('Failed to violate rule:', error);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex h-screen bg-slate-50 text-slate-900 font-sans">
+      {/* Sidebar */}
+      <aside className="w-72 bg-white border-r border-slate-200 flex flex-col">
+        <div className="p-6 border-b border-slate-100">
+          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
+            <span className="text-2xl">⚖️</span> 个人宪法
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <p className="text-xs text-slate-400 mt-1 font-medium">用规则塑造稳定习惯</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        
+        <div className="flex-1 overflow-hidden p-4">
+          <CategoryList
+            categories={categories}
+            selectedId={selectedCategoryId}
+            onSelect={setSelectedCategoryId}
+            onEdit={handleEditCategory}
+            onDelete={handleDeleteCategory}
+            onAdd={handleAddCategory}
+          />
         </div>
+        
+        <div className="p-4 border-t border-slate-100 text-center">
+          <p className="text-xs text-slate-300">© 2025 Personal Constitution</p>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-hidden flex flex-col">
+        {selectedCategoryId ? (
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-5xl mx-auto p-8">
+              <header className="mb-8">
+                <h2 className="text-3xl font-bold text-slate-800">
+                  {categories.find((c) => c.id === selectedCategoryId)?.name}
+                </h2>
+                <div className="h-1 w-20 bg-blue-500 rounded-full mt-4"></div>
+              </header>
+              
+              <RuleList
+                rules={rules}
+                onEdit={handleEditRule}
+                onDelete={handleDeleteRule}
+                onFollow={handleFollowRule}
+                onViolate={handleViolateRule}
+                onAdd={handleAddRule}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="max-w-md text-center">
+              <div className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center mx-auto mb-6">
+                <span className="text-4xl">🎯</span>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-800 mb-3">开始你的自律之旅</h3>
+              <p className="text-slate-500 mb-8 leading-relaxed">
+                创建分类来组织你的行为准则，<br/>让每一个好习惯都有迹可循。
+              </p>
+              <button
+                onClick={handleAddCategory}
+                className="bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 shadow-lg hover:shadow-blue-500/30 transition-all duration-200 font-semibold"
+              >
+                创建第一个分类
+              </button>
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* Modals */}
+      <CategoryModal
+        isOpen={categoryModalOpen}
+        category={editingCategory}
+        onClose={() => setCategoryModalOpen(false)}
+        onSubmit={handleSaveCategory}
+      />
+      <RuleModal
+        isOpen={ruleModalOpen}
+        rule={editingRule}
+        onClose={() => setRuleModalOpen(false)}
+        onSubmit={handleSaveRule}
+      />
     </div>
   );
 }

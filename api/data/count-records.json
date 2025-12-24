@@ -1,0 +1,44 @@
+[
+  {
+    "id": "1cafd6e7-72ee-47d1-9f65-6a5987d10c7f",
+    "rule_id": "f564e9a0-2cf8-4f22-938b-816b94fbb89b",
+    "record_type": "follow",
+    "timestamp": "2025-12-24T17:49:06.083219+00:00",
+    "note": ""
+  },
+  {
+    "id": "866c01c0-335d-4f0d-9137-65e5d5867e69",
+    "rule_id": "f564e9a0-2cf8-4f22-938b-816b94fbb89b",
+    "record_type": "violate",
+    "timestamp": "2025-12-24T17:49:07.901019+00:00",
+    "note": ""
+  },
+  {
+    "id": "3523621e-9ecf-40c2-84f7-507d6ad691ac",
+    "rule_id": "f564e9a0-2cf8-4f22-938b-816b94fbb89b",
+    "record_type": "violate",
+    "timestamp": "2025-12-24T17:50:06.697349+00:00",
+    "note": ""
+  },
+  {
+    "id": "48348f71-8be0-40eb-8332-b67bbeabd3c7",
+    "rule_id": "f564e9a0-2cf8-4f22-938b-816b94fbb89b",
+    "record_type": "follow",
+    "timestamp": "2025-12-24T18:04:22.732943+00:00",
+    "note": ""
+  },
+  {
+    "id": "2c78e36f-57d6-44c2-a174-f4e1afe5c9bd",
+    "rule_id": "f564e9a0-2cf8-4f22-938b-816b94fbb89b",
+    "record_type": "violate",
+    "timestamp": "2025-12-24T18:04:24.031319+00:00",
+    "note": ""
+  },
+  {
+    "id": "5836dbb6-6709-4fc6-8d11-16f6a7bdf5fb",
+    "rule_id": "f564e9a0-2cf8-4f22-938b-816b94fbb89b",
+    "record_type": "violate",
+    "timestamp": "2025-12-24T18:04:24.515377+00:00",
+    "note": ""
+  }
+]

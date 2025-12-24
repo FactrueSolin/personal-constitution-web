@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package constitution;
+
+message Rule {
+  string id = 1;
+  string category_id = 2;
+  string content = 3;
+  uint32 follow_count = 4;
+  uint32 violate_count = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message RuleList {
+  repeated Rule rules = 1;
+}
+
+message CreateRuleRequest {
+  string category_id = 1;
+  string content = 2;
+}
