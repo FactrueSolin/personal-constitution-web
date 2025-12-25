@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build Next.js
+        run: pnpm build
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Build Rust API
+        run: cd api && cargo build --release
+      
+      - name: Create release package
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          mkdir -p release-package
+          
+          # Copy Rust binary
+          cp api/target/release/api release-package/
+          
+          # Copy Next.js static files
+          cp -r out release-package/
+          
+          # Copy data directory
+          cp -r api/data release-package/
+          
+          # Create zip file
+          zip -r "personal-constitution-${VERSION}.zip" release-package/
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: personal-constitution-*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
