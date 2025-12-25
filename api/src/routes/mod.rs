@@ -3,12 +3,13 @@ use axum::{
     Router,
 };
 use tower_http::cors::CorsLayer;
+use tower_http::services::{ServeDir, ServeFile};
 use crate::handlers;
 
 pub fn create_router() -> Router {
     let cors = CorsLayer::permissive();
 
-    Router::new()
+    let api_routes = Router::new()
         .route("/api/categories", get(handlers::list_categories))
         .route("/api/categories", post(handlers::create_category))
         .route("/api/categories/tree", get(handlers::get_category_tree))
@@ -22,5 +23,12 @@ pub fn create_router() -> Router {
         .route("/api/rules/{id}", delete(handlers::delete_rule))
         .route("/api/rules/{id}/follow", post(handlers::follow_rule))
         .route("/api/rules/{id}/violate", post(handlers::violate_rule))
-        .layer(cors)
+        .layer(cors);
+
+    let static_files = ServeDir::new("../out")
+        .not_found_service(ServeFile::new("../out/index.html"));
+
+    Router::new()
+        .merge(api_routes)
+        .fallback_service(static_files)
 }

@@ -11,29 +11,22 @@
 
 ## 2. 技术架构
 
-### Next.js 前端 + Rust 后端架构
+### Rust 后端一体化架构
 
 ```mermaid
 graph TB
     subgraph Client
         Browser[浏览器]
-        RSC[React Server Components]
-        RCC[React Client Components]
     end
     
-    subgraph Frontend[Next.js 前端]
-        AppRouter[App Router]
-        UIComponents[UI 组件]
-        FrontendProto[Protobuf 库<br/>protobuf.js/ts-proto]
+    subgraph Frontend[Next.js 静态编译]
+        StaticBuild[pnpm build:static]
+        OutDir[out/ 目录<br/>静态文件]
     end
     
-    subgraph Communication[Protobuf 二进制通信]
-        ProtoCodec[Protocol Buffers<br/>编码/解码]
-    end
-    
-    subgraph Backend[Rust 后端]
+    subgraph Backend[Rust 后端<br/>单一服务]
         WebServer[Rust Web 服务器<br/>Axum/Actix-web]
-        BackendProto[Protobuf 库<br/>prost]
+        StaticServer[静态文件服务<br/>托管 out/ 目录]
         APIService[API 服务]
         StorageService[存储服务]
     end
@@ -43,19 +36,14 @@ graph TB
         JSONFiles[JSON 文件存储]
     end
     
-    Browser --> AppRouter
-    AppRouter --> RSC
-    AppRouter --> RCC
-    RSC --> Frontend
-    RCC --> Frontend
-    Frontend --> FrontendProto
-    FrontendProto --> ProtoCodec
-    ProtoCodec --> BackendProto
-    BackendProto --> WebServer
+    Browser -->|HTTP 请求| WebServer
+    WebServer --> StaticServer
     WebServer --> APIService
     WebServer --> StorageService
+    StaticServer --> OutDir
     StorageService --> JSONFiles
     JSONFiles --> DataDir
+    StaticBuild --> OutDir
 ```
 
 ### 技术栈
@@ -78,7 +66,7 @@ graph TB
 
 ```
 personal-constitution-web/
-├── app/                      # Next.js 前端目录 (移除 API 路由)
+├── app/                      # Next.js 前端目录
 │   ├── components/           # React 组件
 │   │   ├── common/           # 通用组件
 │   │   ├── category/         # 分类相关组件
@@ -88,6 +76,10 @@ personal-constitution-web/
 │   ├── globals.css           # 全局样式
 │   ├── layout.tsx            # 根布局
 │   └── page.tsx              # 首页
+├── out/                      # Next.js 静态编译输出目录
+│   ├── index.html            # 首页 HTML
+│   ├── _next/                # Next.js 静态资源
+│   └── ...                   # 其他静态文件
 ├── api/                      # Rust 后端项目目录
 │   ├── Cargo.toml            # Rust 项目配置
 │   ├── src/
@@ -717,12 +709,42 @@ cd api && cargo run
 pnpm dev
 ```
 
+### 一键构建和运行
+
+完成安装后，可以使用以下命令快速构建和运行整个应用：
+
+```bash
+# 构建前端静态文件
+pnpm build:static
+
+# 运行后端（同时提供 API 和前端）
+cd api && cargo run
+
+# 访问 http://localhost:8080
+```
+
+或者使用生产版本：
+
+```bash
+# 构建前端静态文件
+pnpm build:static
+
+# 构建后端生产版本
+cd api && cargo build --release
+
+# 运行后端
+./api/target/release/api
+
+# 访问 http://localhost:8080
+```
+
 ### 开发命令
 
 | 命令 | 说明 |
 |------|------|
 | `pnpm dev` | 启动 Next.js 前端开发服务器 |
 | `pnpm proto:generate` | 生成 Protobuf TypeScript 代码 |
+| `pnpm build:static` | 构建 Next.js 静态文件到 `out/` 目录 |
 | `cd api && cargo run` | 启动 Rust 后端开发服务器 |
 | `pnpm build` | 构建 Next.js 前端生产版本 |
 | `cd api && cargo build --release` | 构建 Rust 后端生产版本 |
@@ -746,52 +768,37 @@ pnpm dev
 # 生成 Protobuf 代码
 pnpm proto:generate
 
-# 构建前端
-pnpm build
+# 构建前端静态文件
+pnpm build:static
 
 # 构建后端
 cd api && cargo build --release
 ```
 
-### 部署选项
+### 部署方案
 
-#### 前后端分离部署
+#### 单一部署（推荐）
 
-1. 生成 Protobuf 代码：`pnpm proto:generate`
-2. 构建前端：`pnpm build`
-3. 构建后端：`cd api && cargo build --release`
-4. 部署前端到静态服务器或 CDN（如 Vercel）
-5. 部署后端到服务器并运行可执行文件
+Rust 后端同时托管静态文件和 API，只需部署一个服务：
 
-#### Docker 部署（前后端分离）
+1. 构建前端静态文件：`pnpm build:static`（输出到 `out/` 目录）
+2. 构建后端：`cd api && cargo build --release`
+3. 部署后端可执行文件到服务器
+4. 后端自动托管 `out/` 目录中的静态文件和 API
 
-前端 Dockerfile：
+#### Docker 部署（单一容器）
+
 ```dockerfile
-FROM node:18-alpine AS base
+FROM node:18-alpine AS frontend-builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install -g pnpm
 RUN pnpm install
-
-FROM base AS production
 COPY . .
 RUN pnpm proto:generate
-RUN pnpm build
+RUN pnpm build:static
 
-FROM base AS runtime
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-USER nextjs
-COPY --from=production --chown=nextjs:nodejs /app /app
-WORKDIR /app
-EXPOSE 3000
-ENV PORT 3000
-CMD ["pnpm", "start"]
-```
-
-后端 Dockerfile：
-```dockerfile
-FROM rust:1.80 AS builder
+FROM rust:1.80 AS backend-builder
 WORKDIR /app
 COPY . .
 RUN apt-get update && apt-get install -y protobuf-compiler
@@ -800,17 +807,18 @@ RUN cd api && cargo build --release
 FROM debian:bookworm-slim AS runtime
 RUN apt-get update && apt-get install -y ca-certificates
 WORKDIR /app
-COPY --from=builder /app/api/target/release/api ./api
+COPY --from=backend-builder /app/api/target/release/api ./api
+COPY --from=frontend-builder /app/out ./out
 EXPOSE 8080
 CMD ["./api"]
 ```
 
 #### 环境变量配置
 
-前端需要配置后端 API 地址：
+后端需要配置静态文件目录：
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8080  # 开发环境
-NEXT_PUBLIC_API_URL=https://api.example.com  # 生产环境
+STATIC_DIR=./out  # 静态文件目录
+API_PORT=8080     # API 服务端口
 ```
 
 ## 11. 数据存储层实现

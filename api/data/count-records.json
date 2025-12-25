@@ -145,5 +145,40 @@
     "record_type": "follow",
     "timestamp": "2025-12-25T02:46:33.565574+00:00",
     "note": ""
+  },
+  {
+    "id": "f76b809d-3afb-47c1-b14f-7d15cbbe6fa5",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:44:16.324030+00:00",
+    "note": ""
+  },
+  {
+    "id": "6eefbf47-4b84-425c-8bfb-0837fd82658b",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "violate",
+    "timestamp": "2025-12-25T03:44:17.390578+00:00",
+    "note": ""
+  },
+  {
+    "id": "896775c0-e1fc-4bc3-aa5d-75cbfaef00a9",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "violate",
+    "timestamp": "2025-12-25T03:44:17.956124+00:00",
+    "note": ""
+  },
+  {
+    "id": "857175fc-fbe5-4285-ba8e-16a9a990f356",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:44:18.623675+00:00",
+    "note": ""
+  },
+  {
+    "id": "6fde756e-f22e-4981-826a-c5055cd68e58",
+    "rule_id": "21ef7b9e-2c1c-4ad8-8276-79450fdc5142",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:44:40.523827+00:00",
+    "note": ""
   }
 ]
