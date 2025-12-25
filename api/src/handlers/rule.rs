@@ -11,6 +11,18 @@ use chrono::Utc;
 pub struct RuleQuery {
     #[serde(rename = "categoryId")]
     category_id: Option<String>,
+    #[serde(rename = "sortBy", default = "default_sort_by")]
+    sort_by: String,
+    #[serde(rename = "sortOrder", default = "default_sort_order")]
+    sort_order: String,
+}
+
+fn default_sort_by() -> String {
+    "follow_count".to_string()
+}
+
+fn default_sort_order() -> String {
+    "desc".to_string()
 }
 
 pub async fn list_rules(
@@ -18,12 +30,41 @@ pub async fn list_rules(
 ) -> Json<Vec<Rule>> {
     let rules = storage::load_rules();
     let filtered = if let Some(cat_id) = query.category_id {
-        rules.into_iter().filter(|r| r.category_id == cat_id).collect()
+        let categories = storage::load_categories();
+        let category_ids = storage::get_all_descendant_category_ids(&categories, &cat_id);
+        rules.into_iter().filter(|r| category_ids.contains(&r.category_id)).collect()
     } else {
         rules
     };
-    debug_assert!(!filtered.is_empty() || filtered.is_empty(), "Rules loaded");
-    Json(filtered)
+    
+    let mut sorted = filtered;
+    sorted.sort_by(|a, b| {
+        let cmp = match query.sort_by.as_str() {
+            "violate_count" => {
+                if query.sort_order == "desc" {
+                    b.violate_count.cmp(&a.violate_count)
+                } else {
+                    a.violate_count.cmp(&b.violate_count)
+                }
+            }
+            _ => {
+                if query.sort_order == "desc" {
+                    b.follow_count.cmp(&a.follow_count)
+                } else {
+                    a.follow_count.cmp(&b.follow_count)
+                }
+            }
+        };
+        
+        if cmp == std::cmp::Ordering::Equal {
+            b.created_at.cmp(&a.created_at)
+        } else {
+            cmp
+        }
+    });
+    
+    debug_assert!(!sorted.is_empty() || sorted.is_empty(), "Rules loaded and sorted");
+    Json(sorted)
 }
 
 pub async fn create_rule(

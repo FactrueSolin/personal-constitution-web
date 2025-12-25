@@ -121,6 +121,8 @@ interface Category {
   name: string;
   createdAt: Date;
   updatedAt: Date;
+  parentId?: string;      // 新增：父分类 ID，用于嵌套结构
+  sortOrder: number;      // 新增：排序顺序
 }
 
 interface Rule {
@@ -151,13 +153,25 @@ interface CountRecord {
     "id": "cat1",
     "name": "学习",
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "updatedAt": "2025-01-01T00:00:00.000Z"
+    "updatedAt": "2025-01-01T00:00:00.000Z",
+    "parentId": null,
+    "sortOrder": 1
   },
   {
     "id": "cat2",
     "name": "工作",
     "createdAt": "2025-01-01T00:00:00.000Z",
-    "updatedAt": "2025-01-01T00:00:00.000Z"
+    "updatedAt": "2025-01-01T00:00:00.000Z",
+    "parentId": null,
+    "sortOrder": 2
+  },
+  {
+    "id": "cat3",
+    "name": "前端开发",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z",
+    "parentId": "cat2",
+    "sortOrder": 1
   }
 ]
 
@@ -208,6 +222,22 @@ message Category {
   string name = 2;
   string created_at = 3;
   string updated_at = 4;
+  optional string parent_id = 5;      // 新增：父分类 ID
+  int32 sort_order = 6;               // 新增：排序顺序
+}
+
+message CategoryTreeNode {
+  string id = 1;
+  string name = 2;
+  string created_at = 3;
+  string updated_at = 4;
+  optional string parent_id = 5;
+  int32 sort_order = 6;
+  repeated CategoryTreeNode children = 7;  // 子分类
+}
+
+message CategoryTree {
+  repeated CategoryTreeNode roots = 1;  // 根分类列表
 }
 
 message CategoryList {
@@ -216,6 +246,13 @@ message CategoryList {
 
 message CreateCategoryRequest {
   string name = 1;
+  optional string parent_id = 2;  // 新增：指定父分类
+}
+
+message MoveCategoryRequest {
+  string category_id = 1;
+  optional string new_parent_id = 2;  // 新增：新的父分类 ID
+  int32 new_sort_order = 3;           // 新增：新的排序顺序
 }
 ```
 
@@ -411,12 +448,27 @@ pub async fn get_categories() -> impl IntoResponse {
 - **响应**: `CategoryList` (Protobuf 二进制格式)
 - **Content-Type**: `application/x-protobuf`
 
+#### 获取分类树形结构
+- **方法**: `GET`
+- **路径**: `/api/categories/tree`
+- **响应**: `CategoryTree` (Protobuf 二进制格式)
+- **Content-Type**: `application/x-protobuf`
+- **说明**: 返回树形结构的分类，包含所有嵌套关系
+
+#### 获取子分类
+- **方法**: `GET`
+- **路径**: `/api/categories/{id}/children`
+- **响应**: `CategoryList` (Protobuf 二进制格式)
+- **Content-Type**: `application/x-protobuf`
+- **说明**: 获取指定分类的所有直接子分类
+
 #### 创建分类
 - **方法**: `POST`
 - **路径**: `/api/categories`
 - **请求体**: `CreateCategoryRequest` (Protobuf 二进制格式)
 - **响应**: `Category` (Protobuf 二进制格式)
 - **Content-Type**: `application/x-protobuf`
+- **说明**: 支持指定 `parent_id` 创建子分类
 
 #### 更新分类
 - **方法**: `PUT`
@@ -424,6 +476,14 @@ pub async fn get_categories() -> impl IntoResponse {
 - **请求体**: `CreateCategoryRequest` (Protobuf 二进制格式)
 - **响应**: `Category` (Protobuf 二进制格式)
 - **Content-Type**: `application/x-protobuf`
+
+#### 移动分类
+- **方法**: `POST`
+- **路径**: `/api/categories/{id}/move`
+- **请求体**: `MoveCategoryRequest` (Protobuf 二进制格式)
+- **响应**: `Category` (Protobuf 二进制格式)
+- **Content-Type**: `application/x-protobuf`
+- **说明**: 移动分类到新的父分类，支持调整排序顺序
 
 #### 删除分类
 - **方法**: `DELETE`
@@ -496,12 +556,13 @@ graph TD
 
 | 组件名 | 职责 | Props |
 |--------|------|-------|
-| `CategoryList` | 展示分类列表 | `categories`, `selectedCategoryId`, `onSelect`, `onEdit`, `onDelete` |
-| `CategoryItem` | 单个分类项 | `category`, `isActive`, `onClick`, `onEdit`, `onDelete` |
+| `CategoryTree` | 树形分类展示 | `tree`, `selectedCategoryId`, `onSelect`, `onEdit`, `onDelete`, `onMove` |
+| `CategoryList` | 展示分类列表（支持嵌套） | `categories`, `selectedCategoryId`, `onSelect`, `onEdit`, `onDelete`, `onMove` |
+| `CategoryItem` | 单个分类项（支持展开/折叠） | `category`, `children`, `isActive`, `isExpanded`, `onClick`, `onToggle`, `onEdit`, `onDelete`, `onMove` |
 | `RuleList` | 展示规则列表 | `rules`, `onEdit`, `onDelete`, `onCount` |
 | `RuleCard` | 单条规则卡片 | `rule`, `onFollow`, `onViolate` |
 | `CountButtons` | 遵守/违反按钮 | `followCount`, `violateCount`, `onFollow`, `onViolate` |
-| `CategoryModal` | 分类创建/编辑弹窗 | `isOpen`, `category?`, `onSave`, `onClose` |
+| `CategoryModal` | 分类创建/编辑弹窗 | `isOpen`, `category?`, `parentCategories`, `onSave`, `onClose` |
 | `RuleModal` | 规则创建/编辑弹窗 | `isOpen`, `rule?`, `categories`, `onSave`, `onClose` |
 
 ## 8. 状态管理

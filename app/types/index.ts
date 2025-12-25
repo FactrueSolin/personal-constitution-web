@@ -3,6 +3,23 @@ export interface Category {
   name: string;
   created_at: string;
   updated_at: string;
+  parent_id?: string;
+  sort_order: number;
+}
+
+export interface CategoryTreeNode {
+  category: Category;
+  children: CategoryTreeNode[];
+}
+
+export interface CategoryTree {
+  roots: CategoryTreeNode[];
+}
+
+export interface MoveCategoryRequest {
+  categoryId: string;
+  newParentId?: string;
+  sortOrder: number;
 }
 
 export interface Rule {

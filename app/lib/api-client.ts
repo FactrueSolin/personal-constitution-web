@@ -1,4 +1,4 @@
-import { Category, Rule } from "@/app/types";
+import { Category, Rule, CategoryTree, MoveCategoryRequest } from "@/app/types";
 
 const API_BASE = "http://localhost:8080/api";
 
@@ -10,13 +10,38 @@ export const apiClient = {
     return res.json();
   },
 
-  async createCategory(name: string): Promise<Category> {
+  async createCategory(name: string, parentId?: string): Promise<Category> {
     const res = await fetch(`${API_BASE}/categories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, parent_id: parentId }),
     });
     if (!res.ok) throw new Error("Failed to create category");
+    return res.json();
+  },
+
+  async fetchCategoryTree(): Promise<CategoryTree> {
+    const res = await fetch(`${API_BASE}/categories/tree`);
+    if (!res.ok) throw new Error("Failed to fetch category tree");
+    return res.json();
+  },
+
+  async fetchChildren(categoryId: string): Promise<Category[]> {
+    const res = await fetch(`${API_BASE}/categories/${categoryId}/children`);
+    if (!res.ok) throw new Error("Failed to fetch children");
+    return res.json();
+  },
+
+  async moveCategory(request: MoveCategoryRequest): Promise<Category> {
+    const res = await fetch(`${API_BASE}/categories/${request.categoryId}/move`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        new_parent_id: request.newParentId,
+        sort_order: request.sortOrder,
+      }),
+    });
+    if (!res.ok) throw new Error("Failed to move category");
     return res.json();
   },
 
@@ -38,8 +63,12 @@ export const apiClient = {
   },
 
   // Rule APIs
-  async getRules(categoryId: string): Promise<Rule[]> {
-    const res = await fetch(`${API_BASE}/rules?categoryId=${categoryId}`);
+  async getRules(categoryId?: string, sortBy: string = "follow_count", sortOrder: string = "desc"): Promise<Rule[]> {
+    const params = new URLSearchParams();
+    if (categoryId) params.append("categoryId", categoryId);
+    params.append("sortBy", sortBy);
+    params.append("sortOrder", sortOrder);
+    const res = await fetch(`${API_BASE}/rules?${params.toString()}`);
     if (!res.ok) throw new Error("Failed to fetch rules");
     return res.json();
   },

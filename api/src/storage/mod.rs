@@ -60,13 +60,97 @@ pub fn save_records(records: &[CountRecord]) {
     fs::write(RECORDS_FILE, json).ok();
 }
 
-pub fn create_category(name: String) -> Category {
+pub fn create_category(name: String, parent_id: Option<String>, sort_order: i32) -> Category {
     let now = Utc::now().to_rfc3339();
     Category {
         id: Uuid::new_v4().to_string(),
         name,
         created_at: now.clone(),
         updated_at: now,
+        parent_id,
+        sort_order,
+    }
+}
+
+pub fn build_category_tree(categories: &[Category]) -> Vec<crate::models::CategoryTreeNode> {
+    use std::collections::HashMap;
+    
+    let mut map: HashMap<String, crate::models::CategoryTreeNode> = HashMap::new();
+    let mut roots = Vec::new();
+    
+    for cat in categories {
+        map.insert(cat.id.clone(), crate::models::CategoryTreeNode {
+            category: cat.clone(),
+            children: Vec::new(),
+        });
+    }
+    
+    for cat in categories {
+        if let Some(parent_id) = &cat.parent_id {
+            if let Some(node) = map.remove(&cat.id) {
+                if let Some(parent_node) = map.get_mut(parent_id) {
+                    parent_node.children.push(node);
+                }
+            }
+        } else {
+            if let Some(node) = map.remove(&cat.id) {
+                roots.push(node);
+            }
+        }
+    }
+    
+    roots.sort_by_key(|n| n.category.sort_order);
+    for node in &mut roots {
+        sort_children(node);
+    }
+    
+    roots
+}
+
+fn sort_children(node: &mut crate::models::CategoryTreeNode) {
+    node.children.sort_by_key(|n| n.category.sort_order);
+    for child in &mut node.children {
+        sort_children(child);
+    }
+}
+
+pub fn has_cycle(categories: &[Category], category_id: &str, new_parent_id: Option<&str>) -> bool {
+    if let Some(parent_id) = new_parent_id {
+        if category_id == parent_id {
+            return true;
+        }
+        
+        let mut current = parent_id;
+        loop {
+            if let Some(cat) = categories.iter().find(|c| c.id == current) {
+                if let Some(parent) = &cat.parent_id {
+                    if parent == category_id {
+                        return true;
+                    }
+                    current = parent;
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+    false
+}
+
+pub fn get_all_descendant_category_ids(categories: &[Category], category_id: &str) -> Vec<String> {
+    let mut result = vec![category_id.to_string()];
+    collect_descendant_ids(categories, category_id, &mut result);
+    result
+}
+
+fn collect_descendant_ids(categories: &[Category], parent_id: &str, result: &mut Vec<String>) {
+    for cat in categories {
+        if cat.parent_id.as_deref() == Some(parent_id) {
+            result.push(cat.id.clone());
+            collect_descendant_ids(categories, &cat.id, result);
+        }
     }
 }
 

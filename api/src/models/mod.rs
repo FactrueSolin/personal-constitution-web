@@ -6,6 +6,21 @@ pub struct Category {
     pub name: String,
     pub created_at: String,
     pub updated_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent_id: Option<String>,
+    #[serde(default)]
+    pub sort_order: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CategoryTreeNode {
+    pub category: Category,
+    pub children: Vec<CategoryTreeNode>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CategoryTree {
+    pub roots: Vec<CategoryTreeNode>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,11 +46,20 @@ pub struct CountRecord {
 #[derive(Debug, Deserialize)]
 pub struct CreateCategoryRequest {
     pub name: String,
+    pub parent_id: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct UpdateCategoryRequest {
     pub name: String,
+    pub parent_id: Option<String>,
+    pub sort_order: Option<i32>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MoveCategoryRequest {
+    pub parent_id: Option<String>,
+    pub sort_order: i32,
 }
 
 #[derive(Debug, Deserialize)]
