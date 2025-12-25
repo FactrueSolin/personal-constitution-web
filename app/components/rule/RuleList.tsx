@@ -10,6 +10,7 @@ interface RuleListProps {
   onFollow: (id: string) => void;
   onViolate: (id: string) => void;
   onAdd: () => void;
+  showAddButton?: boolean;
 }
 
 export function RuleList({
@@ -19,20 +20,23 @@ export function RuleList({
   onFollow,
   onViolate,
   onAdd,
+  showAddButton = true,
 }: RuleListProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-slate-500">共 {rules.length} 条规则</p>
-        <button
-          onClick={onAdd}
-          className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors shadow-sm hover:shadow-md"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span className="font-medium">新增规则</span>
-        </button>
+        {showAddButton && (
+          <button
+            onClick={onAdd}
+            className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 transition-colors shadow-sm hover:shadow-md"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="font-medium">新增规则</span>
+          </button>
+        )}
       </div>
 
       <div className="grid gap-4">

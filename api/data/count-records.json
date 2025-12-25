@@ -180,5 +180,68 @@
     "record_type": "follow",
     "timestamp": "2025-12-25T03:44:40.523827+00:00",
     "note": ""
+  },
+  {
+    "id": "f3e01436-b35f-4347-a380-a45eb9df71b8",
+    "rule_id": "21ef7b9e-2c1c-4ad8-8276-79450fdc5142",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:11.218100+00:00",
+    "note": ""
+  },
+  {
+    "id": "ffe87601-7a90-49f7-a8c6-ea83b1cbf0ac",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "violate",
+    "timestamp": "2025-12-25T03:54:12.250544+00:00",
+    "note": ""
+  },
+  {
+    "id": "a65e165f-cc98-406d-9bc9-512c401a86ad",
+    "rule_id": "21ef7b9e-2c1c-4ad8-8276-79450fdc5142",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:14.084134+00:00",
+    "note": ""
+  },
+  {
+    "id": "2a90121d-d5fd-488c-bda5-1d75ae75cf8b",
+    "rule_id": "21ef7b9e-2c1c-4ad8-8276-79450fdc5142",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:14.734205+00:00",
+    "note": ""
+  },
+  {
+    "id": "a5b44d5f-a978-4c1b-a152-e7bf15667f1e",
+    "rule_id": "21ef7b9e-2c1c-4ad8-8276-79450fdc5142",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:15.216929+00:00",
+    "note": ""
+  },
+  {
+    "id": "4529dbd3-c5fe-4965-9206-63a641895998",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:16.183067+00:00",
+    "note": ""
+  },
+  {
+    "id": "66ab64dd-88d5-42c0-9b90-cf4f7affbf99",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:16.833633+00:00",
+    "note": ""
+  },
+  {
+    "id": "de3ecb35-bf91-4a3f-bafe-70ce896f1cd1",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:17.133919+00:00",
+    "note": ""
+  },
+  {
+    "id": "bfff86ad-6247-4dff-be5b-8bcee630a9c2",
+    "rule_id": "7ed1b1fb-1214-4975-bb52-d6a7226a315d",
+    "record_type": "follow",
+    "timestamp": "2025-12-25T03:54:17.667830+00:00",
+    "note": ""
   }
 ]

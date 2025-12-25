@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:static": "next build",
-    "start": "next start",
+    "build:all": "next build && cd api && cargo build --release",
+    "start": "next build && cd api && cargo run --release",
     "lint": "eslint"
   },
   "dependencies": {

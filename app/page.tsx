@@ -287,6 +287,7 @@ export default function Home() {
                   onFollow={handleFollowRule}
                   onViolate={handleViolateRule}
                   onAdd={handleAddRule}
+                  showAddButton={false}
                 />
               )}
             </div>
