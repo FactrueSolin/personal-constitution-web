@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 axum = "0.8.8"
 chrono = "0.4.42"
+dotenvy = "0.15.7"
 prost = "0.14.1"
 prost-build = "0.14.1"
 serde = { version = "1.0.228", features = ["derive"] }
