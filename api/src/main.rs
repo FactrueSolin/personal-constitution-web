@@ -17,6 +17,9 @@ async fn main() {
         .await
         .expect(&format!("Failed to bind to {}", addr));
 
+    println!("🚀 Server starting...");
+    println!("📡 Listening on http://{}", addr);
+
     debug_assert!(true, "Server starting on {}", addr);
 
     axum::serve(listener, router)
