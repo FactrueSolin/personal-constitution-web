@@ -54,6 +54,9 @@ jobs:
           # Copy data directory
           cp -r api/data release-package/
           
+          # Copy .env.example
+          cp api/.env.example release-package/
+          
           # Create zip file
           zip -r "personal-constitution-${VERSION}.zip" release-package/
       
