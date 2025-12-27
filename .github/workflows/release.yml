@@ -43,19 +43,32 @@ jobs:
       - name: Create release package
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          mkdir -p release-package
           
-          # Copy Rust binary
-          cp api/target/release/api release-package/
+          # Create directory structure matching development environment
+          # Binary runs from api/ and accesses ../out for static files
+          mkdir -p release-package/api/data
           
-          # Copy Next.js static files
+          # 1. Copy Rust binary to api/ subdirectory
+          cp api/target/release/api release-package/api/api
+          
+          # 2. Copy .env.example to api/ subdirectory
+          cp api/.env.example release-package/api/
+          
+          # 3. Copy data directory contents to api/data/ (if exists)
+          if [ -d "api/data" ] && [ "$(ls -A api/data 2>/dev/null)" ]; then
+            cp -r api/data/* release-package/api/data/
+          fi
+          
+          # 4. Copy Next.js static files to out/ (../out from api/ directory)
           cp -r out release-package/
           
-          # Copy data directory
-          cp -r api/data release-package/
-          
-          # Copy .env.example
-          cp api/.env.example release-package/
+          # Final structure:
+          # release-package/
+          # ├── api/
+          # │   ├── api          (binary)
+          # │   ├── data/        (data directory)
+          # │   └── .env.example
+          # └── out/             (static files, accessed via ../out)
           
           # Create zip file
           zip -r "personal-constitution-${VERSION}.zip" release-package/
